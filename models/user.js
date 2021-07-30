@@ -19,9 +19,9 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator(url) {
         const regex = /^https?:\/\/(www\.)?\d?[a-zA-Z-]+\.\w+([a-zA-Z/]+)?#?/;
-        return regex.test(url); // если url не удовлетворяет условиям, вернётся false
+        return regex.test(url);
       },
-      message: 'Введите URL.', // когда validator вернёт false, будет использовано это сообщение
+      message: 'Введите URL.',
     },
   },
 });
