@@ -11,6 +11,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
+  useUnifiedTopology: true,
 });
 
 // Мидлвэр для авторизации
@@ -28,6 +29,10 @@ app.use((req, res, next) => {
 
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
+
+app.use((req, res) => {
+  res.status(404).send({ message: 'Запрашиваемый ресурс не найден.' });
+});
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

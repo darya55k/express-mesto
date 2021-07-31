@@ -3,7 +3,7 @@ const User = require('../models/user');
 // Запрос списка пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.status(200).send({ data: users }))
     .catch((err) => res.status(500).json({ message: `На сервере произошла ошибка: ${err.message}` }));
 };
 
@@ -52,6 +52,7 @@ module.exports.updateProfileInfo = (req, res) => {
     { name, about },
     {
       new: true,
+      runValidators: true,
     },
   )
     .then((user) => {
