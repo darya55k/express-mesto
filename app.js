@@ -7,7 +7,7 @@ const cardsRouter = require('./routes/cards');
 const usersRouter = require('./routes/users');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-err');
-const auth = require('./middlewares/auth');
+// const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 
@@ -31,13 +31,6 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/', usersRouter);
-app.use('/', cardsRouter);
-
-app.use(errors());
-
-app.use('*', (req, res, next) => next(new NotFoundError('Ресурс не найден.')));
-
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -54,7 +47,15 @@ app.post('/signin', celebrate({
     password: Joi.string().required(),
   }),
 }), login);
-app.use(auth);
+
+// app.use(auth);
+
+app.use('/', usersRouter);
+app.use('/', cardsRouter);
+
+app.use(errors());
+
+app.use('*', (req, res, next) => next(new NotFoundError('Ресурс не найден.')));
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;

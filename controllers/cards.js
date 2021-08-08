@@ -3,7 +3,7 @@ const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 const ForbiddenError = require('../errors/forbidden-err');
-
+const UnauthorizedError = require('../errors/unauthorized-err');
 // Запрос списка карточек
 module.exports.getCards = (req, res, next) => {
   Card.find({}).populate('owner')
@@ -19,7 +19,7 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные');
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -29,27 +29,21 @@ module.exports.createCard = (req, res, next) => {
 // Запрос на удаление карточки по идентификатору
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .catch(() => {
-      throw new NotFoundError('Нет карточки с таким id');
-    })
-    .then((data) => {
-      if (req.user._id === data.owner.toString()) {
-        Card.findByIdAndRemove({ _id: data._id })
-          .then(() => {
-            res.status(200).send({ message: 'Карточка успешно удалена' });
-          })
-          .catch(next);
-      } else {
-        throw new ForbiddenError('Вы не можете удалять карточки других пользователей');
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Нет карточки с данным id');
+      } else if (card.owner.toString() !== req.user._id.toString()) {
+        throw new ForbiddenError('Недостаточно прав');
       }
-    })
-    .catch((err) => {
+      Card.findByIdAndRemove(req.params.cardId)
+        .then((deletedCard) => res.send(deletedCard))
+        .catch(next);
+    }).catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Нет карточки с таким id');
-      } else {
-        next(err);
-      }
-    });
+        throw new UnauthorizedError('Невалидный id');
+      } else next(err);
+    })
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res, next) => {

@@ -51,7 +51,7 @@ module.exports.getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Нет пользователя с таким id');
+        throw new UnauthorizedError('Невалидный id');
       } else {
         next(err);
       }

@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const validator = require('validator');
 const {
   getUsers, getCurrentUser, getUserById, updateProfileInfo, updateAvatar,
 } = require('../controllers/users');
@@ -23,10 +24,18 @@ router.patch('/users/me', celebrate({
   }),
 }), updateProfileInfo);
 
+const method = (value) => {
+  const result = validator.isURL(value);
+  if (result) {
+    return value;
+  }
+  throw new Error('URL validation err');
+};
+
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
     // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().required().pattern(/https?:\/\/w{0,3}[a-z0-9-._~:\/?#[\]@!$&'()*+,;=]{0,}/i),
+    avatar: Joi.string().required().custom(method),
   }),
 }), updateAvatar);
 
