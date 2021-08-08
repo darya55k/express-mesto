@@ -7,7 +7,7 @@ const cardsRouter = require('./routes/cards');
 const usersRouter = require('./routes/users');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-err');
-// const auth = require('./middlewares/auth');
+const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 
@@ -48,7 +48,7 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-// app.use(auth);
+app.use(auth);
 
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
